@@ -31,10 +31,10 @@
         <module>inventario-service</module>
         <module>clientes-fiado-service</module>
         <module>ventas-service</module>
-        <!--<module>notificaciones-service</module>-->
+        <module>notificaciones-service</module>
         <!--<module>reportes-service</module>-->
         <module>distribuidora-soap</module>
-        <!--<module>monitor-caja</module>-->
+        <module>monitor-caja</module>
     </modules>
 
     <properties>

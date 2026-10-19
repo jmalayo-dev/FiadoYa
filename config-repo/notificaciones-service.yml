@@ -1,0 +1,12 @@
+server:
+  port: 8085
+fiadoya:
+  alertas:
+    capacidad: 100
+    al-conectar: 20
+    ping-sse-segundos: 25
+  socket:
+    puerto: ${SOCKET_PORT:7070}
+    clave: ${SOCKET_KEY:}
+    hilos: 32
+    ping-segundos: 30
