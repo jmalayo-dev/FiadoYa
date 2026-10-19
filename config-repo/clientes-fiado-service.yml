@@ -1,0 +1,8 @@
+server:
+  port: 8083
+fiadoya:
+  db:
+    nombre: fiadoya_clientes
+  alertas:
+    # Anexo v1.2 E4: aviso cuando un cargo cruza este porcentaje del límite.
+    umbral-limite: 0.90
