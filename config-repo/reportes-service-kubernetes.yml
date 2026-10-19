@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          clientes-fiado-service:
+            url: http://clientes-fiado-service:8083

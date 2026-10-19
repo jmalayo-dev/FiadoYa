@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reporte de deudores (HU09). Formato JRXML de JasperReports 7. -->
+<jasperReport name="deudores" language="java" pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30">
+    <property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
+    <parameter name="BODEGA" class="java.lang.String"/>
+    <parameter name="FECHA" class="java.lang.String"/>
+    <parameter name="TOTAL" class="java.math.BigDecimal"/>
+    <parameter name="CANTIDAD" class="java.lang.Integer"/>
+    <field name="cliente" class="java.lang.String"/>
+    <field name="telefono" class="java.lang.String"/>
+    <field name="saldo" class="java.math.BigDecimal"/>
+    <field name="limite" class="java.math.BigDecimal"/>
+    <field name="usado" class="java.lang.Integer"/>
+    <title height="62">
+        <element kind="textField" x="0" y="0" width="535" height="26" fontName="DejaVu Sans" fontSize="16.0" bold="true">
+            <expression><![CDATA["FiadoYa · " + $P{BODEGA}]]></expression>
+        </element>
+        <element kind="staticText" x="0" y="26" width="535" height="18" fontName="DejaVu Sans" fontSize="11.0">
+            <text><![CDATA[Reporte de clientes con deuda pendiente]]></text>
+        </element>
+        <element kind="textField" x="0" y="44" width="535" height="14" fontName="DejaVu Sans" fontSize="8.0" forecolor="#4B5563">
+            <expression><![CDATA["Generado: " + $P{FECHA} + " (hora de Lima)"]]></expression>
+        </element>
+    </title>
+    <columnHeader height="22">
+        <element kind="staticText" mode="Opaque" backcolor="#1F2937" forecolor="#FFFFFF" x="0" y="0" width="185" height="22" fontName="DejaVu Sans" fontSize="9.0" bold="true" vTextAlign="Middle">
+            <paragraph leftIndent="4"/>
+            <text><![CDATA[Cliente]]></text>
+        </element>
+        <element kind="staticText" mode="Opaque" backcolor="#1F2937" forecolor="#FFFFFF" x="185" y="0" width="90" height="22" fontName="DejaVu Sans" fontSize="9.0" bold="true" vTextAlign="Middle">
+            <text><![CDATA[Teléfono]]></text>
+        </element>
+        <element kind="staticText" mode="Opaque" backcolor="#1F2937" forecolor="#FFFFFF" x="275" y="0" width="90" height="22" fontName="DejaVu Sans" fontSize="9.0" bold="true" hTextAlign="Right" vTextAlign="Middle">
+            <text><![CDATA[Saldo (S/)]]></text>
+        </element>
+        <element kind="staticText" mode="Opaque" backcolor="#1F2937" forecolor="#FFFFFF" x="365" y="0" width="90" height="22" fontName="DejaVu Sans" fontSize="9.0" bold="true" hTextAlign="Right" vTextAlign="Middle">
+            <text><![CDATA[Límite (S/)]]></text>
+        </element>
+        <element kind="staticText" mode="Opaque" backcolor="#1F2937" forecolor="#FFFFFF" x="455" y="0" width="80" height="22" fontName="DejaVu Sans" fontSize="9.0" bold="true" hTextAlign="Right" vTextAlign="Middle">
+            <paragraph rightIndent="4"/>
+            <text><![CDATA[% usado]]></text>
+        </element>
+    </columnHeader>
+    <detail>
+        <band height="20">
+            <element kind="textField" x="0" y="0" width="185" height="20" fontName="DejaVu Sans" fontSize="9.0" vTextAlign="Middle">
+                <paragraph leftIndent="4"/>
+                <expression><![CDATA[$F{cliente}]]></expression>
+            </element>
+            <element kind="textField" x="185" y="0" width="90" height="20" fontName="DejaVu Sans" fontSize="9.0" vTextAlign="Middle">
+                <expression><![CDATA[$F{telefono}]]></expression>
+            </element>
+            <element kind="textField" x="275" y="0" width="90" height="20" fontName="DejaVu Sans" fontSize="9.0" forecolor="#B42318" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00">
+                <expression><![CDATA[$F{saldo}]]></expression>
+            </element>
+            <element kind="textField" x="365" y="0" width="90" height="20" fontName="DejaVu Sans" fontSize="9.0" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00">
+                <expression><![CDATA[$F{limite}]]></expression>
+            </element>
+            <element kind="textField" x="455" y="0" width="80" height="20" fontName="DejaVu Sans" fontSize="9.0" hTextAlign="Right" vTextAlign="Middle">
+                <paragraph rightIndent="4"/>
+                <expression><![CDATA[$F{usado} + " %"]]></expression>
+            </element>
+            <element kind="line" x="0" y="19" width="535" height="1" forecolor="#D1D5DB"/>
+        </band>
+    </detail>
+    <pageFooter height="18">
+        <element kind="textField" x="0" y="2" width="535" height="14" fontName="DejaVu Sans" fontSize="8.0" forecolor="#6B7280" hTextAlign="Right">
+            <expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression>
+        </element>
+    </pageFooter>
+    <summary height="30">
+        <element kind="textField" x="0" y="8" width="365" height="18" fontName="DejaVu Sans" fontSize="10.0" bold="true">
+            <expression><![CDATA[$P{CANTIDAD} + " clientes con deuda · Total por cobrar"]]></expression>
+        </element>
+        <element kind="textField" x="275" y="8" width="90" height="18" fontName="DejaVu Sans" fontSize="10.0" bold="true" forecolor="#B42318" hTextAlign="Right" pattern="#,##0.00">
+            <expression><![CDATA[$P{TOTAL}]]></expression>
+        </element>
+    </summary>
+</jasperReport>

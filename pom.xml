@@ -32,7 +32,7 @@
         <module>clientes-fiado-service</module>
         <module>ventas-service</module>
         <module>notificaciones-service</module>
-        <!--<module>reportes-service</module>-->
+        <module>reportes-service</module>
         <module>distribuidora-soap</module>
         <module>monitor-caja</module>
     </modules>
@@ -45,7 +45,8 @@
         <springdoc.version>3.1.1</springdoc.version>
         <cxf.version>4.2.4</cxf.version>
         <poi.version>5.5.1</poi.version>
-        <openpdf.version>3.0.5</openpdf.version>
+        <jasperreports.version>7.1.0</jasperreports.version>
+        <ecj.version>3.46.100</ecj.version>
         <jacoco.version>0.8.15</jacoco.version>
         <logstash-encoder.version>9.0</logstash-encoder.version>
     </properties>
@@ -113,9 +114,30 @@
                 <version>${poi.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.librepdf</groupId>
-                <artifactId>openpdf</artifactId>
-                <version>${openpdf.version}</version>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-pdf</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-jdt</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-fonts</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <!-- ECJ reciente: el 3.21 que trae Jasper no entiende clases de Java 25 -->
+            <dependency>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>ecj</artifactId>
+                <version>${ecj.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>

@@ -1,0 +1,18 @@
+server:
+  port: 8086
+fiadoya:
+  db:
+    nombre: fiadoya_reportes
+  reportes:
+    hilos: 3
+spring:
+  cloud:
+    circuitbreaker:
+      resilience4j:
+        disable-time-limiter: true
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 2000
+            read-timeout: 3000
