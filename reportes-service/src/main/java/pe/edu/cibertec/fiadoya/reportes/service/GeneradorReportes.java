@@ -180,6 +180,12 @@ public class GeneradorReportes {
                 json.writerWithDefaultPrettyPrinter().writeValueAsBytes(resumen(desde, hasta)));
     }
 
+    /** Compila la plantilla al arrancar: así la primera medición del consolidado no incluye esa compilación. */
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    public void precompilar() throws Exception {
+        plantilla();
+    }
+
     /** La plantilla .jrxml se compila una vez y se reutiliza. */
     private JasperReport plantilla() throws Exception {
         JasperReport r = plantillaDeudores;

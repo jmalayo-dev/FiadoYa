@@ -1,0 +1,194 @@
+# FiadoYa — perfil básico: bases de datos, RabbitMQ, infraestructura Spring Cloud, servicios y web.
+# Uso (desde backend/):
+#   docker compose --env-file .env -f deploy/compose/docker-compose.basico.yml up -d --build
+name: fiadoya
+
+x-servicio: &servicio
+  restart: unless-stopped
+  mem_limit: 640m
+  networks: [fiadoya]
+  environment: &entorno
+    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-demo}
+    CONFIG_SERVER_URL: http://config-server:8888
+    EUREKA_URL: http://discovery-server:8761/eureka
+    DB_HOST: sqlserver
+    DB_PORT: "1433"
+    DB_USER: ${DB_USER}
+    DB_PASSWORD: ${DB_PASSWORD}
+    RABBIT_HOST: rabbitmq
+    RABBIT_USER: ${RABBIT_USER}
+    RABBIT_PASSWORD: ${RABBIT_PASSWORD}
+    JWT_SECRET: ${JWT_SECRET}
+    JWT_ISSUER: ${JWT_ISSUER:-fiadoya-auth}
+    INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    ZIPKIN_ENABLED: ${ZIPKIN_ENABLED:-false}
+    ZIPKIN_URL: http://zipkin:9411/api/v2/spans
+  depends_on: &depende
+    config-server: { condition: service_healthy }
+    discovery-server: { condition: service_healthy }
+    rabbitmq: { condition: service_healthy }
+    mssql-init: { condition: service_completed_successfully }
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports: ["${HOST_PORT_SQL:-1433}:1433"]
+    volumes: [sqldata:/var/opt/mssql]
+    networks: [fiadoya]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  # Contenedor de un solo uso: crea las 5 bases y el login de la aplicación (Anexo §2.2).
+  mssql-init:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    depends_on:
+      sqlserver: { condition: service_healthy }
+    environment:
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes: ["../../infra/sql:/init:ro"]
+    networks: [fiadoya]
+    entrypoint: ["bash", "-c", "/opt/mssql-tools18/bin/sqlcmd -C -S sqlserver -U sa -P \"$$MSSQL_SA_PASSWORD\" -b -v DB_USER=\"$$DB_USER\" DB_PASSWORD=\"$$DB_PASSWORD\" -i /init/init-db.sql"]
+    restart: "no"
+
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
+    ports:
+      - "${HOST_PORT_RABBIT:-5672}:5672"
+      - "${HOST_PORT_RABBIT_UI:-15672}:15672"
+    volumes: [rabbitdata:/var/lib/rabbitmq]
+    networks: [fiadoya]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+
+  config-server:
+    build: { context: ../.., dockerfile: config-server/Dockerfile }
+    image: fiadoya/config-server:${TAG:-local}
+    restart: unless-stopped
+    mem_limit: 384m
+    networks: [fiadoya]
+    volumes: ["../../config-repo:/app/config-repo:ro"]
+    environment:
+      CONFIG_REPO_PATH: file:/app/config-repo/
+
+  discovery-server:
+    build: { context: ../.., dockerfile: discovery-server/Dockerfile }
+    image: fiadoya/discovery-server:${TAG:-local}
+    restart: unless-stopped
+    mem_limit: 384m
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_EUREKA:-8761}:8761"]
+
+  auth-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: auth-service/Dockerfile }
+    image: fiadoya/auth-service:${TAG:-local}
+    environment:
+      <<: *entorno
+      JWT_TTL_HORAS: ${JWT_TTL_HORAS:-8}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DEMO_CLIENTE_PASSWORD: ${DEMO_CLIENTE_PASSWORD:-}
+      BODEGA_NOMBRE: ${BODEGA_NOMBRE:-Bodega Don Carlos}
+      BODEGA_TELEFONO: ${BODEGA_TELEFONO:-987112233}
+      BODEGA_DIRECCION: ${BODEGA_DIRECCION:-Lima}
+
+  inventario-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: inventario-service/Dockerfile }
+    image: fiadoya/inventario-service:${TAG:-local}
+    environment:
+      <<: *entorno
+      SOAP_URL: ${SOAP_URL:-http://distribuidora-soap:8087/ws/distribuidora}
+
+  clientes-fiado-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: clientes-fiado-service/Dockerfile }
+    image: fiadoya/clientes-fiado-service:${TAG:-local}
+
+  ventas-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: ventas-service/Dockerfile }
+    image: fiadoya/ventas-service:${TAG:-local}
+
+  notificaciones-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: notificaciones-service/Dockerfile }
+    image: fiadoya/notificaciones-service:${TAG:-local}
+    ports: ["${HOST_PORT_SOCKET:-7070}:7070"]
+    environment:
+      <<: *entorno
+      SOCKET_KEY: ${SOCKET_KEY}
+    depends_on:
+      config-server: { condition: service_healthy }
+      discovery-server: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  reportes-service:
+    <<: *servicio
+    build: { context: ../.., dockerfile: reportes-service/Dockerfile }
+    image: fiadoya/reportes-service:${TAG:-local}
+    environment:
+      <<: *entorno
+      BODEGA_NOMBRE: ${BODEGA_NOMBRE:-Bodega Don Carlos}
+
+  distribuidora-soap:
+    build: { context: ../.., dockerfile: distribuidora-soap/Dockerfile }
+    image: fiadoya/distribuidora-soap:${TAG:-local}
+    restart: unless-stopped
+    mem_limit: 384m
+    networks: [fiadoya]
+
+  api-gateway:
+    build: { context: ../.., dockerfile: api-gateway/Dockerfile }
+    image: fiadoya/api-gateway:${TAG:-local}
+    restart: unless-stopped
+    mem_limit: 512m
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_GATEWAY:-8080}:8080"]
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_URL: http://discovery-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ISSUER: ${JWT_ISSUER:-fiadoya-auth}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      ZIPKIN_ENABLED: ${ZIPKIN_ENABLED:-false}
+      ZIPKIN_URL: http://zipkin:9411/api/v2/spans
+    depends_on:
+      config-server: { condition: service_healthy }
+      discovery-server: { condition: service_healthy }
+
+  # Frontend (repo FiadoYa_Web). Por defecto se construye desde ../frontend del espacio de trabajo.
+  web:
+    build: { context: "${WEB_CONTEXT:-../../../frontend}" }
+    image: fiadoya/web:${TAG:-local}
+    restart: unless-stopped
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_WEB:-80}:80"]
+    depends_on:
+      api-gateway: { condition: service_healthy }
+
+networks:
+  fiadoya:
+    name: fiadoya
+
+volumes:
+  sqldata:
+  rabbitdata:
