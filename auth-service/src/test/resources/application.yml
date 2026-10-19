@@ -1,0 +1,40 @@
+# Configuración de pruebas: sin config-server, sin Eureka, sin Zipkin.
+spring:
+  application:
+    name: auth-service
+  cloud:
+    config:
+      enabled: false
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+eureka:
+  client:
+    enabled: false
+management:
+  tracing:
+    export:
+      zipkin:
+        enabled: false
+fiadoya:
+  security:
+    jwt-secret: secreto-de-pruebas-con-mas-de-32-caracteres
+    jwt-issuer: fiadoya-auth
+    internal-key: clave-interna-pruebas
+  jwt:
+    ttl-horas: 8
+  admin:
+    username: bodeguero
+    password: Admin12345
+  demo:
+    cliente-username: cliente1
+    cliente-password: Demo12345
+  bodega:
+    nombre: Bodega Test
+    telefono: "987000000"
+    direccion: Lima

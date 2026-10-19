@@ -1,0 +1,8 @@
+# En Kubernetes no hay Eureka: Feign y el gateway usan los Service (DNS) del clúster.
+eureka:
+  client:
+    enabled: false
+spring:
+  cloud:
+    discovery:
+      enabled: false

@@ -1,0 +1,22 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          # Primero la carpeta en disco (editable sin recompilar); si no existe, la copia empaquetada en el jar.
+          search-locations: ${CONFIG_REPO_PATH:file:./config-repo/},file:../config-repo/,classpath:/config-repo/
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

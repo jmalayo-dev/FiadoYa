@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Consola legible siempre; con el perfil "elk" además envía JSON a Logstash (LOGSTASH_HOST:LOGSTASH_PORT). -->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <springProperty scope="context" name="servicio" source="spring.application.name" defaultValue="fiadoya"/>
+    <springProperty scope="context" name="logstashHost" source="fiadoya.logstash.host" defaultValue="logstash"/>
+    <springProperty scope="context" name="logstashPort" source="fiadoya.logstash.port" defaultValue="5000"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <springProfile name="elk">
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>${logstashHost}:${logstashPort}</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"servicio":"${servicio}"}</customFields>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="LOGSTASH"/>
+        </root>
+    </springProfile>
+</configuration>

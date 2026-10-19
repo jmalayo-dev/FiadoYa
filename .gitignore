@@ -1,0 +1,21 @@
+# Build
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Secretos locales (solo se versiona .env.example)
+.env
+*.env.local
+deploy/k8s/secrets.env
+
+# SO
+.DS_Store
+*.log

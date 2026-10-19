@@ -1,0 +1,17 @@
+server:
+  port: 8081
+fiadoya:
+  db:
+    nombre: fiadoya_auth
+  jwt:
+    ttl-horas: ${JWT_TTL_HORAS:8}
+  admin:
+    username: ${ADMIN_USERNAME:bodeguero}
+    password: ${ADMIN_PASSWORD:}
+  demo:
+    cliente-username: cliente1
+    cliente-password: ${DEMO_CLIENTE_PASSWORD:}
+  bodega:
+    nombre: ${BODEGA_NOMBRE:Bodega Don Carlos}
+    telefono: ${BODEGA_TELEFONO:987112233}
+    direccion: ${BODEGA_DIRECCION:Jr. Áncash 412, Lima}

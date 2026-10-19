@@ -1,0 +1,1 @@
+-- Los usuarios demo se crean con ApplicationRunner (R7): ninguna contraseña en SQL.
