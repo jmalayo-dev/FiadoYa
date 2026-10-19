@@ -1,0 +1,10 @@
+# En Kubernetes Feign usa el DNS de los Service (no hay Eureka).
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          inventario-service:
+            url: http://inventario-service:8082
+          clientes-fiado-service:
+            url: http://clientes-fiado-service:8083

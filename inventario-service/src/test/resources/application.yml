@@ -43,10 +43,7 @@ fiadoya:
   soap:
     url: http://localhost:1/ws/distribuidora
     timeout-ms: 500
-resilience4j:
-  circuitbreaker:
-    instances:
-      distribuidora:
-        minimum-number-of-calls: 2
-        sliding-window-size: 2
-        wait-duration-in-open-state: 60s
+  circuitos:
+    minimo-llamadas: 2
+    ventana: 2
+    segundos-abierto: 60

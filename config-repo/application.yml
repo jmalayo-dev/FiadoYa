@@ -21,6 +21,7 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
+        default_batch_fetch_size: 50
         jdbc:
           time_zone: UTC
         type:
@@ -88,6 +89,12 @@ springdoc:
     path: /swagger-ui.html
 
 fiadoya:
+  # Circuit breakers (se aplican en código, ver ResilienciaConfig de cada servicio)
+  circuitos:
+    ventana: 10
+    minimo-llamadas: 4
+    porcentaje-fallos: 50
+    segundos-abierto: 20
   security:
     jwt-secret: ${JWT_SECRET:}
     jwt-issuer: ${JWT_ISSUER:fiadoya-auth}

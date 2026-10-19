@@ -30,7 +30,7 @@
         <module>auth-service</module>
         <module>inventario-service</module>
         <module>clientes-fiado-service</module>
-        <!--<module>ventas-service</module>-->
+        <module>ventas-service</module>
         <!--<module>notificaciones-service</module>-->
         <!--<module>reportes-service</module>-->
         <module>distribuidora-soap</module>

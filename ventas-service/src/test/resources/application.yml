@@ -1,0 +1,50 @@
+# Configuración de pruebas: sin config-server, sin Eureka, sin Zipkin.
+spring:
+  application:
+    name: ventas-service
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 100ms
+eureka:
+  client:
+    enabled: false
+management:
+  tracing:
+    export:
+      zipkin:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,prometheus
+fiadoya:
+  security:
+    jwt-secret: secreto-de-pruebas-con-mas-de-32-caracteres
+    jwt-issuer: fiadoya-auth
+    internal-key: clave-interna-pruebas
+  ventas:
+    limpieza-cada-ms: 3600000
+    pendiente-max-minutos: 5
+  circuitos:
+    ventana: 4
+    minimo-llamadas: 4
+    porcentaje-fallos: 50
+    segundos-abierto: 60

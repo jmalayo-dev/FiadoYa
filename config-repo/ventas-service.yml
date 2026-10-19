@@ -1,0 +1,22 @@
+server:
+  port: 8084
+fiadoya:
+  db:
+    nombre: fiadoya_ventas
+  ventas:
+    # Job que limpia ventas PENDIENTE abandonadas (Anexo §10.3)
+    limpieza-cada-ms: 120000
+    pendiente-max-minutos: 5
+spring:
+  cloud:
+    circuitbreaker:
+      resilience4j:
+        # El tiempo máximo lo controla Feign (3 s); sin TimeLimiter extra.
+        disable-time-limiter: true
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 2000
+            read-timeout: 3000
+            logger-level: basic
