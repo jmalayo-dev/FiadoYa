@@ -1,0 +1,8 @@
+fiadoya:
+  rutas:
+    auth: http://auth-service:8081
+    inventario: http://inventario-service:8082
+    clientes: http://clientes-fiado-service:8083
+    ventas: http://ventas-service:8084
+    notificaciones: http://notificaciones-service:8085
+    reportes: http://reportes-service:8086

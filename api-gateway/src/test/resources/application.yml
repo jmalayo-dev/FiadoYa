@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  config:
+    # Mismas rutas que en producción (config-repo), con las URI sobrescritas por la prueba.
+    import: optional:file:../config-repo/api-gateway.yml
+eureka:
+  client:
+    enabled: false
+management:
+  tracing:
+    export:
+      zipkin:
+        enabled: false
+fiadoya:
+  security:
+    jwt-secret: secreto-de-pruebas-con-mas-de-32-caracteres
+    jwt-issuer: fiadoya-auth

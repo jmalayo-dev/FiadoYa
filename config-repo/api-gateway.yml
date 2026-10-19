@@ -1,0 +1,104 @@
+server:
+  port: 8080
+fiadoya:
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  rutas:
+    auth: ${AUTH_URI:lb://auth-service}
+    inventario: ${INVENTARIO_URI:lb://inventario-service}
+    clientes: ${CLIENTES_URI:lb://clientes-fiado-service}
+    ventas: ${VENTAS_URI:lb://ventas-service}
+    notificaciones: ${NOTIFICACIONES_URI:lb://notificaciones-service}
+    reportes: ${REPORTES_URI:lb://reportes-service}
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+          routes:
+            # No existe ninguna ruta hacia /internal/** (R1).
+            - id: auth
+              uri: ${fiadoya.rutas.auth}
+              predicates:
+                - Path=/api/auth/**,/api/bodega
+            - id: inventario
+              uri: ${fiadoya.rutas.inventario}
+              predicates:
+                - Path=/api/productos/**,/api/reposiciones/**
+            - id: clientes
+              uri: ${fiadoya.rutas.clientes}
+              predicates:
+                - Path=/api/clientes/**
+            - id: ventas
+              uri: ${fiadoya.rutas.ventas}
+              predicates:
+                - Path=/api/ventas/**
+            - id: notificaciones
+              uri: ${fiadoya.rutas.notificaciones}
+              predicates:
+                - Path=/api/alertas/**
+            - id: reportes
+              uri: ${fiadoya.rutas.reportes}
+              predicates:
+                - Path=/api/reportes/**
+            # OpenAPI de cada servicio para el Swagger agrupado del gateway
+            - id: docs-auth
+              uri: ${fiadoya.rutas.auth}
+              predicates:
+                - Path=/docs/auth/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: docs-inventario
+              uri: ${fiadoya.rutas.inventario}
+              predicates:
+                - Path=/docs/inventario/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: docs-clientes
+              uri: ${fiadoya.rutas.clientes}
+              predicates:
+                - Path=/docs/clientes/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: docs-ventas
+              uri: ${fiadoya.rutas.ventas}
+              predicates:
+                - Path=/docs/ventas/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: docs-notificaciones
+              uri: ${fiadoya.rutas.notificaciones}
+              predicates:
+                - Path=/docs/notificaciones/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: docs-reportes
+              uri: ${fiadoya.rutas.reportes}
+              predicates:
+                - Path=/docs/reportes/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth
+        url: /docs/auth/v3/api-docs
+      - name: inventario
+        url: /docs/inventario/v3/api-docs
+      - name: clientes-fiado
+        url: /docs/clientes/v3/api-docs
+      - name: ventas
+        url: /docs/ventas/v3/api-docs
+      - name: notificaciones
+        url: /docs/notificaciones/v3/api-docs
+      - name: reportes
+        url: /docs/reportes/v3/api-docs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway

@@ -26,7 +26,7 @@
         <module>common-starter</module>
         <module>config-server</module>
         <module>discovery-server</module>
-        <!--<module>api-gateway</module>-->
+        <module>api-gateway</module>
         <module>auth-service</module>
         <module>inventario-service</module>
         <module>clientes-fiado-service</module>
