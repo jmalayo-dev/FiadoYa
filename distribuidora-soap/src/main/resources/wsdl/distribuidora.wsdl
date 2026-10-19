@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Contrato SOAP de la distribuidora (sistema legado simulado). Anexo §9.
+  Estilo document/literal wrapped. Lo usan distribuidora-soap (servidor) e inventario-service (cliente JAX-WS).
+-->
+<wsdl:definitions name="Distribuidora"
+                  targetNamespace="http://fiadoya.local/distribuidora"
+                  xmlns:tns="http://fiadoya.local/distribuidora"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://fiadoya.local/distribuidora" elementFormDefault="qualified">
+
+            <xsd:complexType name="ItemCatalogo">
+                <xsd:sequence>
+                    <xsd:element name="codigo" type="xsd:string"/>
+                    <xsd:element name="nombre" type="xsd:string"/>
+                    <xsd:element name="precio" type="xsd:decimal"/>
+                    <xsd:element name="disponible" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="Pedido">
+                <xsd:sequence>
+                    <xsd:element name="nroPedido" type="xsd:string"/>
+                    <xsd:element name="fechaEstimada" type="xsd:date"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:element name="consultarCatalogo">
+                <xsd:complexType>
+                    <xsd:sequence/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="consultarCatalogoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="item" type="tns:ItemCatalogo" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="registrarPedido">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="codigo" type="xsd:string"/>
+                        <xsd:element name="cantidad" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="registrarPedidoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="pedido" type="tns:Pedido"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </wsdl:types>
+
+    <wsdl:message name="consultarCatalogoRequest">
+        <wsdl:part name="parameters" element="tns:consultarCatalogo"/>
+    </wsdl:message>
+    <wsdl:message name="consultarCatalogoResponse">
+        <wsdl:part name="parameters" element="tns:consultarCatalogoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="registrarPedidoRequest">
+        <wsdl:part name="parameters" element="tns:registrarPedido"/>
+    </wsdl:message>
+    <wsdl:message name="registrarPedidoResponse">
+        <wsdl:part name="parameters" element="tns:registrarPedidoResponse"/>
+    </wsdl:message>
+
+    <wsdl:portType name="DistribuidoraPortType">
+        <wsdl:operation name="consultarCatalogo">
+            <wsdl:input message="tns:consultarCatalogoRequest"/>
+            <wsdl:output message="tns:consultarCatalogoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="registrarPedido">
+            <wsdl:input message="tns:registrarPedidoRequest"/>
+            <wsdl:output message="tns:registrarPedidoResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="DistribuidoraBinding" type="tns:DistribuidoraPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="consultarCatalogo">
+            <soap:operation soapAction="http://fiadoya.local/distribuidora/consultarCatalogo"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="registrarPedido">
+            <soap:operation soapAction="http://fiadoya.local/distribuidora/registrarPedido"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="DistribuidoraService">
+        <wsdl:port name="DistribuidoraPort" binding="tns:DistribuidoraBinding">
+            <soap:address location="http://localhost:8087/ws/distribuidora"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

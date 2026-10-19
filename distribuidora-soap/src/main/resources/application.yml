@@ -1,0 +1,17 @@
+# La distribuidora es un sistema externo simulado: no usa config-server ni Eureka.
+server:
+  port: 8087
+spring:
+  application:
+    name: distribuidora-soap
+cxf:
+  path: /ws
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

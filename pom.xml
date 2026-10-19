@@ -22,17 +22,18 @@
         <module>fiadoya-contracts</module>
         <module>common-web</module>
         <module>common-security</module>
+        <module>common-messaging</module>
         <module>common-starter</module>
         <module>config-server</module>
         <module>discovery-server</module>
         <!--<module>api-gateway</module>-->
         <module>auth-service</module>
-        <!--<module>inventario-service</module>-->
+        <module>inventario-service</module>
         <!--<module>clientes-fiado-service</module>-->
         <!--<module>ventas-service</module>-->
         <!--<module>notificaciones-service</module>-->
         <!--<module>reportes-service</module>-->
-        <!--<module>distribuidora-soap</module>-->
+        <module>distribuidora-soap</module>
         <!--<module>monitor-caja</module>-->
     </modules>
 
@@ -88,6 +89,18 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>pe.edu.cibertec.fiadoya</groupId>
+                <artifactId>common-messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-bom</artifactId>
+                <version>${cxf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>

@@ -1,0 +1,52 @@
+# Configuración de pruebas: sin config-server, sin Eureka, sin Zipkin.
+spring:
+  application:
+    name: inventario-service
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 100ms
+eureka:
+  client:
+    enabled: false
+management:
+  tracing:
+    export:
+      zipkin:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,prometheus
+fiadoya:
+  security:
+    jwt-secret: secreto-de-pruebas-con-mas-de-32-caracteres
+    jwt-issuer: fiadoya-auth
+    internal-key: clave-interna-pruebas
+  soap:
+    url: http://localhost:1/ws/distribuidora
+    timeout-ms: 500
+resilience4j:
+  circuitbreaker:
+    instances:
+      distribuidora:
+        minimum-number-of-calls: 2
+        sliding-window-size: 2
+        wait-duration-in-open-state: 60s
