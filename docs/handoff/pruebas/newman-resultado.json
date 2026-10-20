@@ -1,0 +1,672 @@
+{
+  "coleccion": "FiadoYa — Casos HU01–HU11",
+  "stats": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 44,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 49,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 44,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 44,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 44,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 74,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 44,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 5,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "timings": {
+    "responseAverage": 60.09090909090909,
+    "responseMin": 3,
+    "responseMax": 626,
+    "responseSd": 106.49323883400005,
+    "dnsAverage": 0,
+    "dnsMin": 0,
+    "dnsMax": 0,
+    "dnsSd": 0,
+    "firstByteAverage": 0,
+    "firstByteMin": 0,
+    "firstByteMax": 0,
+    "firstByteSd": 0,
+    "started": 1792450595764,
+    "completed": 1792450599092
+  },
+  "ejecuciones": [
+    {
+      "peticion": "Login bodeguero",
+      "codigo": 200,
+      "ms": 79,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Login cliente demo",
+      "codigo": 200,
+      "ms": 64,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Producto A (stock 30)",
+      "codigo": 201,
+      "ms": 169,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Producto B (stock 1)",
+      "codigo": 400,
+      "ms": 16,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "ok": true
+        },
+        {
+          "nombre": "code VALIDATION_ERROR",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Producto B corregido",
+      "codigo": 201,
+      "ms": 33,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Cliente con consentimiento (límite 50)",
+      "codigo": 201,
+      "ms": 21,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Cliente sin consentimiento",
+      "codigo": 201,
+      "ms": 15,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Contraseña incorrecta → 401",
+      "codigo": 401,
+      "ms": 83,
+      "aserciones": [
+        {
+          "nombre": "HTTP 401",
+          "ok": true
+        },
+        {
+          "nombre": "code AUTH_INVALID_CREDENTIALS",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Token inválido o vencido → 401",
+      "codigo": 401,
+      "ms": 4,
+      "aserciones": [
+        {
+          "nombre": "HTTP 401",
+          "ok": true
+        },
+        {
+          "nombre": "code AUTH_TOKEN_EXPIRED",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Sin token → 401",
+      "codigo": 401,
+      "ms": 12,
+      "aserciones": [
+        {
+          "nombre": "HTTP 401",
+          "ok": true
+        },
+        {
+          "nombre": "code AUTH_TOKEN_EXPIRED",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "CLIENTE en /api/productos → 403",
+      "codigo": 403,
+      "ms": 3,
+      "aserciones": [
+        {
+          "nombre": "HTTP 403",
+          "ok": true
+        },
+        {
+          "nombre": "code AUTH_FORBIDDEN",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "/internal no se expone → 403",
+      "codigo": 403,
+      "ms": 3,
+      "aserciones": [
+        {
+          "nombre": "HTTP 403",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "GET /me",
+      "codigo": 200,
+      "ms": 8,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "rol",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "GET /bodega",
+      "codigo": 200,
+      "ms": 5,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "FIADO a cliente sin consentimiento → 409",
+      "codigo": 409,
+      "ms": 18,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "ok": true
+        },
+        {
+          "nombre": "code CLIENTE_SIN_CONSENTIMIENTO",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Teléfono inválido → VALIDATION_ERROR",
+      "codigo": 400,
+      "ms": 6,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "ok": true
+        },
+        {
+          "nombre": "code VALIDATION_ERROR",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Lista con deuda",
+      "codigo": 200,
+      "ms": 12,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "Page<Cliente>",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Resumen",
+      "codigo": 200,
+      "ms": 10,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Ajuste que deja stock negativo → 400",
+      "codigo": 400,
+      "ms": 13,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "ok": true
+        },
+        {
+          "nombre": "code VALIDATION_ERROR",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Búsqueda y solo bajos",
+      "codigo": 200,
+      "ms": 13,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Contado 2 ítems → 201 CONFIRMADA",
+      "codigo": 201,
+      "ms": 86,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        },
+        {
+          "nombre": "CONFIRMADA y total HALF_UP",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Misma Idempotency-Key → misma venta",
+      "codigo": 201,
+      "ms": 21,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        },
+        {
+          "nombre": "mismo id",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Stock restado una sola vez",
+      "codigo": 200,
+      "ms": 8,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "stock 28",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Stock insuficiente en el 2.º ítem → 409 sin descontar",
+      "codigo": 409,
+      "ms": 37,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "ok": true
+        },
+        {
+          "nombre": "code PRODUCTO_STOCK_INSUFICIENTE",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Ningún ítem descontado",
+      "codigo": 200,
+      "ms": 25,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "stock sigue en 28",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Sin Idempotency-Key → 400",
+      "codigo": 400,
+      "ms": 8,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "ok": true
+        },
+        {
+          "nombre": "code VALIDATION_ERROR",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Historial de hoy",
+      "codigo": 200,
+      "ms": 23,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "FIADO dentro del límite → CONFIRMADA",
+      "codigo": 201,
+      "ms": 112,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        },
+        {
+          "nombre": "CONFIRMADA",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Saldo sube a 18.00",
+      "codigo": 200,
+      "ms": 10,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "saldo 18",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "FIADO que excede el límite → 409",
+      "codigo": 409,
+      "ms": 348,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "ok": true
+        },
+        {
+          "nombre": "code CLIENTE_LIMITE_EXCEDIDO",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Queda RECHAZADA con motivo",
+      "codigo": 200,
+      "ms": 17,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "RECHAZADA",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Stock devuelto (sigue en 24)",
+      "codigo": 200,
+      "ms": 17,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "stock 24",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Pago parcial → 201",
+      "codigo": 201,
+      "ms": 62,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        },
+        {
+          "nombre": "saldoDespues 10",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Pago mayor al saldo → 409",
+      "codigo": 409,
+      "ms": 25,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "ok": true
+        },
+        {
+          "nombre": "code PAGO_EXCEDE_SALDO",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Estado de cuenta en orden",
+      "codigo": 200,
+      "ms": 54,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "PAGO primero y saldo coherente",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Desactivar cliente con saldo → 409",
+      "codigo": 409,
+      "ms": 59,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "ok": true
+        },
+        {
+          "nombre": "code CLIENTE_CON_SALDO",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Mi cuenta (CLIENTE)",
+      "codigo": 200,
+      "ms": 27,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Historial de alertas",
+      "codigo": 200,
+      "ms": 10,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "es lista",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Deudores PDF",
+      "codigo": 200,
+      "ms": 112,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "PDF",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Deudores Excel",
+      "codigo": 200,
+      "ms": 69,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "xlsx",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Consolidado con tiempos",
+      "codigo": 200,
+      "ms": 626,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        },
+        {
+          "nombre": "headers de tiempo",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Resumen de ventas",
+      "codigo": 200,
+      "ms": 61,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Catálogo del distribuidor",
+      "codigo": 200,
+      "ms": 47,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "peticion": "Nuevo pedido → 201 con nroPedido",
+      "codigo": 201,
+      "ms": 193,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "ok": true
+        },
+        {
+          "nombre": "nroPedido",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

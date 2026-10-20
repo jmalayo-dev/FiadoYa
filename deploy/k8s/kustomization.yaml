@@ -1,0 +1,23 @@
+# kubectl apply -k deploy/k8s   (antes: cp deploy/k8s/secrets.env.example deploy/k8s/secrets.env y editarlo)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: fiadoya
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - sqlserver.yaml
+  - rabbitmq.yaml
+  - servicios.yaml
+  - web.yaml
+  - ingress.yaml
+  - hpa.yaml
+secretGenerator:
+  - name: fiadoya-secretos
+    envs: [secrets.env]
+configMapGenerator:
+  - name: fiadoya-sql-init
+    files: [sql/init-db.sql]
+generatorOptions:
+  disableNameSuffixHash: true
+# Para usar las imágenes publicadas en GHCR:
+#   kustomize edit set image fiadoya/ventas-service=ghcr.io/jmalayo-dev/fiadoya-ventas-service:1.0.0 ...

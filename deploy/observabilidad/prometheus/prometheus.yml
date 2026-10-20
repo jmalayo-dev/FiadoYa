@@ -1,0 +1,19 @@
+# Prometheus recolecta /actuator/prometheus de cada servicio cada 10 s.
+global:
+  scrape_interval: 10s
+scrape_configs:
+  - job_name: fiadoya
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - api-gateway:8080
+          - auth-service:8081
+          - inventario-service:8082
+          - clientes-fiado-service:8083
+          - ventas-service:8084
+          - notificaciones-service:8085
+          - reportes-service:8086
+  - job_name: rabbitmq
+    metrics_path: /metrics
+    static_configs:
+      - targets: [rabbitmq:15692]

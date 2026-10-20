@@ -19,8 +19,7 @@ eureka:
 management:
   tracing:
     export:
-      zipkin:
-        enabled: false
+      enabled: false
 fiadoya:
   security:
     jwt-secret: secreto-de-pruebas-con-mas-de-32-caracteres

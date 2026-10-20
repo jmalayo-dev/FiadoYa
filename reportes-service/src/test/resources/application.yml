@@ -29,8 +29,7 @@ eureka:
 management:
   tracing:
     export:
-      zipkin:
-        enabled: false
+      enabled: false
   endpoints:
     web:
       exposure:

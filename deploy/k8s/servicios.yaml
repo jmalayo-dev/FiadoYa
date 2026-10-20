@@ -1,0 +1,484 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+  labels: { app: config-server }
+spec:
+  selector: { app: config-server }
+  ports:
+    - { port: 8888, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+  labels: { app: config-server, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: config-server }
+  template:
+    metadata:
+      labels: { app: config-server }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8888"
+    spec:
+      containers:
+        - name: config-server
+          image: fiadoya/config-server:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8888, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8888 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8888 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8888 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  labels: { app: auth-service }
+spec:
+  selector: { app: auth-service }
+  ports:
+    - { port: 8081, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  labels: { app: auth-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: auth-service }
+  template:
+    metadata:
+      labels: { app: auth-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8081"
+    spec:
+      containers:
+        - name: auth-service
+          image: fiadoya/auth-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8081, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8081 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8081 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8081 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventario-service
+  labels: { app: inventario-service }
+spec:
+  selector: { app: inventario-service }
+  ports:
+    - { port: 8082, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventario-service
+  labels: { app: inventario-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: inventario-service }
+  template:
+    metadata:
+      labels: { app: inventario-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8082"
+    spec:
+      containers:
+        - name: inventario-service
+          image: fiadoya/inventario-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8082, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8082 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8082 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8082 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clientes-fiado-service
+  labels: { app: clientes-fiado-service }
+spec:
+  selector: { app: clientes-fiado-service }
+  ports:
+    - { port: 8083, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientes-fiado-service
+  labels: { app: clientes-fiado-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: clientes-fiado-service }
+  template:
+    metadata:
+      labels: { app: clientes-fiado-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8083"
+    spec:
+      containers:
+        - name: clientes-fiado-service
+          image: fiadoya/clientes-fiado-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8083, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8083 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8083 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8083 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ventas-service
+  labels: { app: ventas-service }
+spec:
+  selector: { app: ventas-service }
+  ports:
+    - { port: 8084, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ventas-service
+  labels: { app: ventas-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: ventas-service }
+  template:
+    metadata:
+      labels: { app: ventas-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+        - name: ventas-service
+          image: fiadoya/ventas-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8084, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 200m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8084 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8084 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8084 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notificaciones-service
+  labels: { app: notificaciones-service }
+spec:
+  selector: { app: notificaciones-service }
+  ports:
+    - { port: 8085, name: http }
+    - { port: 7070, name: socket }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notificaciones-service
+  labels: { app: notificaciones-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: notificaciones-service }
+  template:
+    metadata:
+      labels: { app: notificaciones-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8085"
+    spec:
+      containers:
+        - name: notificaciones-service
+          image: fiadoya/notificaciones-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8085, name: http }, { containerPort: 7070, name: socket }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8085 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8085 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8085 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportes-service
+  labels: { app: reportes-service }
+spec:
+  selector: { app: reportes-service }
+  ports:
+    - { port: 8086, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportes-service
+  labels: { app: reportes-service, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: reportes-service }
+  template:
+    metadata:
+      labels: { app: reportes-service }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8086"
+    spec:
+      containers:
+        - name: reportes-service
+          image: fiadoya/reportes-service:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8086, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 768Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8086 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8086 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8086 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distribuidora-soap
+  labels: { app: distribuidora-soap }
+spec:
+  selector: { app: distribuidora-soap }
+  ports:
+    - { port: 8087, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distribuidora-soap
+  labels: { app: distribuidora-soap, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: distribuidora-soap }
+  template:
+    metadata:
+      labels: { app: distribuidora-soap }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8087"
+    spec:
+      containers:
+        - name: distribuidora-soap
+          image: fiadoya/distribuidora-soap:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8087, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8087 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8087 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8087 }
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  labels: { app: api-gateway }
+spec:
+  selector: { app: api-gateway }
+  ports:
+    - { port: 8080, name: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels: { app: api-gateway, parte-de: fiadoya }
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: { app: api-gateway }
+  template:
+    metadata:
+      labels: { app: api-gateway }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: api-gateway
+          image: fiadoya/api-gateway:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080, name: http }]
+          envFrom:
+            - configMapRef: { name: fiadoya-config }
+            - secretRef: { name: fiadoya-secretos }
+          resources:
+            requests: { cpu: 100m, memory: 384Mi }
+            limits: { memory: 640Mi }
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8080 }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8080 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8080 }
+            periodSeconds: 20
+            failureThreshold: 3

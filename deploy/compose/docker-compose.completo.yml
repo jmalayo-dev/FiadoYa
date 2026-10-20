@@ -1,0 +1,91 @@
+# FiadoYa — perfil completo: lo del básico + Prometheus, Grafana, ELK y Zipkin.
+# Se usa SOBRE el básico:
+#   docker compose --env-file .env -f deploy/compose/docker-compose.basico.yml -f deploy/compose/docker-compose.completo.yml up -d --build
+x-observable: &observable
+  environment:
+    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-demo},elk
+    ZIPKIN_ENABLED: "true"
+    LOGSTASH_HOST: logstash
+    LOGSTASH_PORT: "5000"
+
+services:
+  auth-service: *observable
+  inventario-service: *observable
+  clientes-fiado-service: *observable
+  ventas-service: *observable
+  notificaciones-service: *observable
+  reportes-service: *observable
+  api-gateway:
+    environment:
+      SPRING_PROFILES_ACTIVE: elk
+      ZIPKIN_ENABLED: "true"
+      LOGSTASH_HOST: logstash
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_PROMETHEUS:-9090}:9090"]
+    volumes: ["../observabilidad/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    restart: unless-stopped
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_GRAFANA:-3000}:3000"]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ../observabilidad/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observabilidad/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus]
+
+  zipkin:
+    image: openzipkin/zipkin:3.5
+    restart: unless-stopped
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_ZIPKIN:-9411}:9411"]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.3
+    restart: unless-stopped
+    networks: [fiadoya]
+    mem_limit: 1536m
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms768m -Xmx768m
+    volumes: [esdata:/usr/share/elasticsearch/data]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.19.3
+    restart: unless-stopped
+    networks: [fiadoya]
+    mem_limit: 768m
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      XPACK_MONITORING_ENABLED: "false"
+    volumes: ["../observabilidad/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"]
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.19.3
+    restart: unless-stopped
+    networks: [fiadoya]
+    ports: ["${HOST_PORT_KIBANA:-5601}:5601"]
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+volumes:
+  esdata:

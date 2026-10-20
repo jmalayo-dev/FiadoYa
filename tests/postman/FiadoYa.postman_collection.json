@@ -1,0 +1,1399 @@
+{
+  "info": {
+    "name": "FiadoYa — Casos HU01–HU11",
+    "description": "Casos del Anexo de Backend §13 a través del gateway. Ejecutar con: npx newman run tests/postman/FiadoYa.postman_collection.json -e tests/postman/local.postman_environment.json",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Preparación",
+      "item": [
+        {
+          "name": "Login bodeguero",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"{{adminUser}}\", \"password\": \"{{adminPassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);",
+                  "pm.collectionVariables.set('sufijo', Date.now() % 100000000);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login cliente demo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"cliente1\", \"password\": \"{{clientePassword}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenCliente', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto A (stock 30)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Postman A {{sufijo}}\", \"precio\": 4.5, \"stock\": 30, \"stockMinimo\": 3, \"categoria\": \"ABARROTES\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('prodA', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto B (stock 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Postman B {{sufijo}}\", \"precio\": 1.335, \"stock\": 1, \"stockMinimo\": 0, \"categoria\": \"OTROS\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));",
+                  "// Precio con 3 decimales: se rechaza"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Producto B corregido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Postman B {{sufijo}}\", \"precio\": 2.25, \"stock\": 1, \"stockMinimo\": 0, \"categoria\": \"OTROS\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('prodB', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cliente con consentimiento (límite 50)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Postman Con Permiso\", \"telefono\": \"912345678\", \"limiteCredito\": 50, \"consentimiento\": true}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('cliOk', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cliente sin consentimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Postman Sin Permiso\", \"telefono\": \"912345679\", \"limiteCredito\": 50, \"consentimiento\": false}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('cliSin', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU01 Seguridad",
+      "item": [
+        {
+          "name": "Contraseña incorrecta → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"{{adminUser}}\", \"password\": \"mala12345\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('code AUTH_INVALID_CREDENTIALS', () => pm.expect(pm.response.json().code).to.eql('AUTH_INVALID_CREDENTIALS'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token inválido o vencido → 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenInvalido}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('code AUTH_TOKEN_EXPIRED', () => pm.expect(pm.response.json().code).to.eql('AUTH_TOKEN_EXPIRED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin token → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('code AUTH_TOKEN_EXPIRED', () => pm.expect(pm.response.json().code).to.eql('AUTH_TOKEN_EXPIRED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CLIENTE en /api/productos → 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('code AUTH_FORBIDDEN', () => pm.expect(pm.response.json().code).to.eql('AUTH_FORBIDDEN'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "/internal no se expone → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "X-Internal-Key",
+                "value": "x"
+              }
+            ],
+            "url": "{{baseUrl}}/internal/inventario/devoluciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"ventaId\": 1}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('rol', () => pm.expect(pm.response.json().rol).to.eql('BODEGUERO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /bodega",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/bodega"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU02 Clientes",
+      "item": [
+        {
+          "name": "FIADO a cliente sin consentimiento → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": \"{{cliSin}}\", \"tipoPago\": \"FIADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('clave', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code CLIENTE_SIN_CONSENTIMIENTO', () => pm.expect(pm.response.json().code).to.eql('CLIENTE_SIN_CONSENTIMIENTO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Teléfono inválido → VALIDATION_ERROR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"X\", \"telefono\": \"123\", \"limiteCredito\": 10, \"consentimiento\": true}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lista con deuda",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes?conDeuda=true&size=5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Page<Cliente>', () => pm.expect(pm.response.json()).to.have.keys('content','page','size','totalElements','totalPages'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resumen",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/resumen"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU03 Productos",
+      "item": [
+        {
+          "name": "Ajuste que deja stock negativo → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos/{{prodA}}/ajuste",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"delta\": -99, \"motivo\": \"prueba\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Búsqueda y solo bajos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos?q=Postman&soloBajos=false"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU04 Venta al contado",
+      "item": [
+        {
+          "name": "Contado 2 ítems → 201 CONFIRMADA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": null, \"tipoPago\": \"CONTADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 2}, {\"productoId\": \"{{prodB}}\", \"cantidad\": 1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('clave', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const v = pm.response.json();",
+                  "pm.test('CONFIRMADA y total HALF_UP', () => { pm.expect(v.estado).to.eql('CONFIRMADA'); pm.expect(v.total).to.eql(11.25); });",
+                  "pm.collectionVariables.set('ventaContado', v.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Misma Idempotency-Key → misma venta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": null, \"tipoPago\": \"CONTADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 2}, {\"productoId\": \"{{prodB}}\", \"cantidad\": 1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('mismo id', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('ventaContado')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock restado una sola vez",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos/{{prodA}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('stock 28', () => pm.expect(pm.response.json().stock).to.eql(28));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock insuficiente en el 2.º ítem → 409 sin descontar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": null, \"tipoPago\": \"CONTADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 1}, {\"productoId\": \"{{prodB}}\", \"cantidad\": 5}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('clave', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code PRODUCTO_STOCK_INSUFICIENTE', () => pm.expect(pm.response.json().code).to.eql('PRODUCTO_STOCK_INSUFICIENTE'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ningún ítem descontado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos/{{prodA}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('stock sigue en 28', () => pm.expect(pm.response.json().stock).to.eql(28));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin Idempotency-Key → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": null, \"tipoPago\": \"CONTADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 1}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial de hoy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas?estado=CONFIRMADA&size=5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU05 Venta al fiado",
+      "item": [
+        {
+          "name": "FIADO dentro del límite → CONFIRMADA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": \"{{cliOk}}\", \"tipoPago\": \"FIADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 4}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('clave', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('CONFIRMADA', () => pm.expect(pm.response.json().estado).to.eql('CONFIRMADA'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Saldo sube a 18.00",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{cliOk}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('saldo 18', () => pm.expect(pm.response.json().saldo).to.eql(18));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FIADO que excede el límite → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{clave}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"clienteId\": \"{{cliOk}}\", \"tipoPago\": \"FIADO\", \"items\": [{\"productoId\": \"{{prodA}}\", \"cantidad\": 4}, {\"productoId\": \"{{prodA}}\", \"cantidad\": 4}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('clave', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('ventaRechazada', pm.response.json().extra && pm.response.json().extra.ventaId);",
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code CLIENTE_LIMITE_EXCEDIDO', () => pm.expect(pm.response.json().code).to.eql('CLIENTE_LIMITE_EXCEDIDO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Queda RECHAZADA con motivo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/ventas/{{ventaRechazada}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('RECHAZADA', () => { pm.expect(pm.response.json().estado).to.eql('RECHAZADA'); pm.expect(pm.response.json().motivoRechazo).to.include('límite'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock devuelto (sigue en 24)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/productos/{{prodA}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('stock 24', () => pm.expect(pm.response.json().stock).to.eql(24));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU06–HU07 Pagos y estado de cuenta",
+      "item": [
+        {
+          "name": "Pago parcial → 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{cliOk}}/pagos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"monto\": 8, \"metodo\": \"YAPE_PLIN\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('saldoDespues 10', () => pm.expect(pm.response.json().saldoDespues).to.eql(10));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pago mayor al saldo → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{cliOk}}/pagos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"monto\": 99, \"metodo\": \"EFECTIVO\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code PAGO_EXCEDE_SALDO', () => pm.expect(pm.response.json().code).to.eql('PAGO_EXCEDE_SALDO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado de cuenta en orden",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{cliOk}}/estado-cuenta"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const m = pm.response.json().movimientos;",
+                  "pm.test('PAGO primero y saldo coherente', () => { pm.expect(m[0].tipo).to.eql('PAGO'); pm.expect(m[0].saldoDespues).to.eql(10); pm.expect(m[1].tipo).to.eql('CARGO'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desactivar cliente con saldo → 409",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/{{cliOk}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code CLIENTE_CON_SALDO', () => pm.expect(pm.response.json().code).to.eql('CLIENTE_CON_SALDO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mi cuenta (CLIENTE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/clientes/mi-cuenta"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU08 Alertas",
+      "item": [
+        {
+          "name": "Historial de alertas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/alertas?limite=10"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('es lista', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU09–HU10 Reportes",
+      "item": [
+        {
+          "name": "Deudores PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/deudores.pdf"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('PDF', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deudores Excel",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/deudores.xlsx"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('xlsx', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('spreadsheetml'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consolidado con tiempos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/consolidado?comparar=true"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('headers de tiempo', () => { pm.expect(pm.response.headers.has('X-Tiempo-Paralelo-Ms')).to.be.true; pm.expect(pm.response.headers.has('X-Tiempo-Secuencial-Ms')).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resumen de ventas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reportes/ventas/resumen"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HU11 Reposiciones (SOAP)",
+      "item": [
+        {
+          "name": "Catálogo del distribuidor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reposiciones/catalogo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nuevo pedido → 201 con nroPedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reposiciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"productoId\": 1, \"cantidad\": 12}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('nroPedido', () => pm.expect(pm.response.json().nroPedido).to.match(/^PD-\\d{4}-\\d+/));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "tokenCliente",
+      "value": ""
+    },
+    {
+      "key": "tokenInvalido",
+      "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.firma-invalida"
+    },
+    {
+      "key": "clave",
+      "value": ""
+    }
+  ]
+}

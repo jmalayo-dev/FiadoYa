@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver
+spec:
+  clusterIP: None
+  selector: { app: sqlserver }
+  ports: [{ port: 1433, name: tds }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sqlserver
+spec:
+  serviceName: sqlserver
+  replicas: 1
+  selector:
+    matchLabels: { app: sqlserver }
+  template:
+    metadata:
+      labels: { app: sqlserver }
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: sqlserver
+          image: mcr.microsoft.com/mssql/server:2025-latest
+          ports: [{ containerPort: 1433 }]
+          env:
+            - { name: ACCEPT_EULA, value: "Y" }
+            - { name: MSSQL_PID, value: Developer }
+            - name: MSSQL_SA_PASSWORD
+              valueFrom: { secretKeyRef: { name: fiadoya-secretos, key: MSSQL_SA_PASSWORD } }
+          resources:
+            requests: { cpu: 250m, memory: 2Gi }
+            limits: { memory: 3Gi }
+          readinessProbe:
+            exec:
+              command: ["bash", "-c", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          volumeMounts:
+            - { name: datos, mountPath: /var/opt/mssql }
+  volumeClaimTemplates:
+    - metadata: { name: datos }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: 5Gi } }
+---
+# Crea las 5 bases y el login de la aplicación (idempotente). Reintenta hasta que SQL Server esté listo.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mssql-init
+spec:
+  backoffLimit: 20
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init
+          image: mcr.microsoft.com/mssql/server:2025-latest
+          command: ["bash", "-c"]
+          args:
+            - /opt/mssql-tools18/bin/sqlcmd -C -S sqlserver -U sa -P "$MSSQL_SA_PASSWORD" -b -v DB_USER="$DB_USER" DB_PASSWORD="$DB_PASSWORD" -i /init/init-db.sql
+          envFrom:
+            - secretRef: { name: fiadoya-secretos }
+          volumeMounts:
+            - { name: sql, mountPath: /init }
+      volumes:
+        - name: sql
+          configMap: { name: fiadoya-sql-init }

@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: FiadoYa
+    folder: FiadoYa
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,17 @@
+# Clúster local para FiadoYa: kind create cluster --config deploy/k8s/kind-config.yaml
+# El Ingress queda en http://localhost:${puerto} (8088 para no chocar con otros servicios).
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: fiadoya
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 8088
+        protocol: TCP

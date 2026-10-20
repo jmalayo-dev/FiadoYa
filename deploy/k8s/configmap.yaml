@@ -1,0 +1,19 @@
+# Configuración no sensible común a los servicios (lo demás vive en config-repo, servido por config-server).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fiadoya-config
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes,demo
+  CONFIG_SERVER_URL: http://config-server:8888
+  EUREKA_ENABLED: "false"
+  DB_HOST: sqlserver
+  DB_PORT: "1433"
+  RABBIT_HOST: rabbitmq
+  JWT_ISSUER: fiadoya-auth
+  SOAP_URL: http://distribuidora-soap:8087/ws/distribuidora
+  BODEGA_NOMBRE: Bodega Don Carlos
+  BODEGA_TELEFONO: "987112233"
+  BODEGA_DIRECCION: Jr. Áncash 412, Lima
+  ZIPKIN_ENABLED: "false"
+  JAVA_OPTS: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC
