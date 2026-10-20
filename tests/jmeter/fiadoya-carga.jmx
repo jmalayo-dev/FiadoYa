@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Prueba de rendimiento (Plan §9): 50 usuarios concurrentes sobre POST /api/ventas y GET estado de cuenta.
-  Meta: p95 < 2 s. Parámetros (-J): host, port, usuarios, iteraciones, adminPassword.
-  Ejecutar: ver tests/jmeter/README.md
--->
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="FiadoYa - carga">
-      <boolProperty name="TestPlan.functional_mode">false</boolProperty>
-      <boolProperty name="TestPlan.serialize_threadgroups">true</boolProperty>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="FiadoYa - carga" enabled="true">
+      <stringProp name="TestPlan.comments">50 usuarios sobre POST /api/ventas y estado de cuenta. Meta p95 menor a 2 s. Ver tests/jmeter/README.md</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments">
         <collectionProp name="Arguments.arguments">
           <elementProp name="host" elementType="Argument"><stringProp name="Argument.name">host</stringProp><stringProp name="Argument.value">${__P(host,localhost)}</stringProp></elementProp>
@@ -33,11 +29,10 @@
       </HeaderManager>
       <hashTree/>
 
-      <!-- Preparación: login y producto con stock alto (una sola vez) -->
-      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="Preparación">
+            <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="Preparación">
         <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
-          <boolProperty name="LoopController.continue_forever">false</boolProperty>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
@@ -47,8 +42,8 @@
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="00 Login">
           <stringProp name="HTTPSampler.path">/api/auth/login</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProperty name="HTTPSampler.postBodyRaw">true</boolProperty>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProperty name="HTTPArgument.always_encode">false</boolProperty><stringProp name="Argument.value">{"username":"bodeguero","password":"${adminPassword}"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProp name="HTTPArgument.always_encode">false</boolProp><stringProp name="Argument.value">{"username":"bodeguero","password":"${adminPassword}"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="token">
@@ -61,8 +56,8 @@
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="00 Producto de carga">
           <stringProp name="HTTPSampler.path">/api/productos</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProperty name="HTTPSampler.postBodyRaw">true</boolProperty>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProperty name="HTTPArgument.always_encode">false</boolProperty><stringProp name="Argument.value">{"nombre":"Carga JMeter ${__time(,)}","precio":1.50,"stock":200000,"stockMinimo":0,"categoria":"OTROS"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProp name="HTTPArgument.always_encode">false</boolProp><stringProp name="Argument.value">{"nombre":"Carga JMeter ${__time(,)}","precio":1.50,"stock":200000,"stockMinimo":0,"categoria":"OTROS"}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer">
@@ -83,11 +78,10 @@
         </hashTree>
       </hashTree>
 
-      <!-- Carga: N usuarios que venden y consultan el estado de cuenta -->
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Bodegueros concurrentes">
+            <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Bodegueros concurrentes">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
-          <boolProperty name="LoopController.continue_forever">false</boolProperty>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">${__P(iteraciones,20)}</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">${__P(usuarios,50)}</stringProp>
@@ -103,8 +97,8 @@
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/ventas">
           <stringProp name="HTTPSampler.path">/api/ventas</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProperty name="HTTPSampler.postBodyRaw">true</boolProperty>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProperty name="HTTPArgument.always_encode">false</boolProperty><stringProp name="Argument.value">{"clienteId":null,"tipoPago":"CONTADO","items":[{"productoId":${__P(productoId)},"cantidad":1}]}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"><elementProp name="" elementType="HTTPArgument"><boolProp name="HTTPArgument.always_encode">false</boolProp><stringProp name="Argument.value">{"clienteId":null,"tipoPago":"CONTADO","items":[{"productoId":${__P(productoId)},"cantidad":1}]}</stringProp><stringProp name="Argument.metadata">=</stringProp></elementProp></collectionProp></elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Idempotency-Key">
